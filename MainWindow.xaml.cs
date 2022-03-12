@@ -291,48 +291,7 @@ namespace SnifferGunbound
                                         DataScreen += "[Client]>Send Password: (Cant Decrypt) Invalid Password ?" + Environment.NewLine;
                                     }
 
-
-
-
-
-
-                                    //Login
                                 }
-
-                                if (CD == 4113)
-                                {
-                                    Crypto Crypto;
-                                    Crypto.Initialize();
-
-                                    byte[] UserBytes = new byte[16];
-                                    Array.Copy(PacketB, 6, UserBytes, 0, 16);
-                                    UserBytes = Crypto.DecryptStaticBuffer(UserBytes);
-                                    String Username = Encoding.ASCII.GetString(UserBytes);
-                                    //DataScreen += "[Client]>Decripted User:" + Username + Environment.NewLine;
-
-                                    byte[] UserCrypto = new byte[16];
-                                    Array.Copy(PacketB, 22, UserCrypto, 0, 16);
-                                    UserCrypto = Crypto.DecryptStaticBuffer(UserCrypto);
-
-                                    DataScreen += "[Client]>Decripted Salt:" + Environment.NewLine;
-                                    DataScreen += "[Client]>Decripted UserName:" + Username + Environment.NewLine;
-                                    DataScreen += Utils.HexDump(UserCrypto, 16) + Environment.NewLine;
-
-
-
-                                    byte[] PasswordData = new byte[32];
-                                    byte[] PasswordDataO = new byte[32];
-                                    Array.Copy(PacketB, 38, PasswordData, 0, 32);
-
-                                    Crypto = new Crypto("aleks", "remakegbxd", Salt);
-
-                                    Crypto.PacketDecrypt(PasswordData, ref PasswordDataO, 4113);
-
-                                    DataScreen += "[Client]>Decripted Password:" + Environment.NewLine;
-                                    DataScreen += Utils.HexDump(PasswordDataO, 16) + Environment.NewLine;
-
-                                }
-
                                 DataScreen += Utils.HexDump(PacketB, 16) + Environment.NewLine;
                             }
 
