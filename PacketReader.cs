@@ -10,7 +10,13 @@ namespace SnifferGunbound
         private int Offset;
 
 
-
+        public int Length
+        {
+            get
+            {
+                return Buffer.Length;
+            }
+        }
 
 
         public PacketReader(byte[] VBuffer)

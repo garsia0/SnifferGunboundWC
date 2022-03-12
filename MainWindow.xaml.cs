@@ -33,6 +33,8 @@ namespace SnifferGunbound
 
         List<int> Port = new List<int>();
 
+        Dictionary<int, Crypto> CryptoPort = new Dictionary<int, Crypto>();
+
         IList<LivePacketDevice> allDevices = LivePacketDevice.AllLocalMachine;
 
         public MainWindow()
@@ -271,10 +273,21 @@ namespace SnifferGunbound
                                     DataScreen += "[Client]>Send Login: " + Login + Environment.NewLine;
                                     byte[] AuthDWORD = Crypto.DecryptStaticBuffer(PR.PReadBytes(16));
 
-                                    Crypto C = new Crypto(Login, GetPassword, BitConverter.ToUInt32(AuthDWORD, 0));
+
+
+                                    if (CryptoPort.ContainsKey(Ip.Tcp.DestinationPort))
+                                    {
+                                        CryptoPort[Ip.Tcp.DestinationPort] = new Crypto(Login, GetPassword, BitConverter.ToUInt32(AuthDWORD, 0));
+                                    }
+                                    else
+                                    {
+                                        CryptoPort.Add(Ip.Tcp.DestinationPort, new Crypto(Login, GetPassword, BitConverter.ToUInt32(AuthDWORD, 0)));
+                                    }
+
+
                                     byte[] DynData = PR.PReadBytes(32);
                                     byte[] RealData = new byte[24];
-                                    bool PDecryptStatus = C.PacketDecrypt(DynData, ref RealData, 4112);
+                                    bool PDecryptStatus = CryptoPort[Ip.Tcp.DestinationPort].PacketDecrypt(DynData, ref RealData, 4112);
 
                                     if (PDecryptStatus)
                                     {
@@ -292,6 +305,28 @@ namespace SnifferGunbound
                                     }
 
                                 }
+
+                                if (CD == 8208)
+                                {
+                                    DataScreen += "[Client]>Send Channel Msg:" + Environment.NewLine;
+                                    if (CryptoPort.ContainsKey(Ip.Tcp.DestinationPort))
+                                    {
+                                        byte[] Playload = PR.PReadBytes(PR.Length - 6);
+                                        byte[] RealData = new byte[PR.Length - 6];
+                                        if (CryptoPort[Ip.Tcp.DestinationPort].PacketDecrypt(Playload, ref RealData, 8208))
+                                        {
+                                            PacketReader MsgData = new PacketReader(RealData);
+                                            byte L = MsgData.PReadByte();
+                                            String Texto = MsgData.PReadStringLeng(L);
+                                            DataScreen += "[Client]>Send Channel Msg Content:" + Texto + Environment.NewLine;
+                                        }
+                                       
+                                    }
+                                        
+                                   
+
+                                }
+
                                 DataScreen += Utils.HexDump(PacketB, 16) + Environment.NewLine;
                             }
 
