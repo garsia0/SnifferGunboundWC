@@ -119,6 +119,40 @@ namespace SnifferGunbound
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+
+            Crypto.Initialize();
+
+            /*
+            byte[] D = new byte[] { 0x46, 0x00, 0xDF, 0xCD, 0x11, 0x10, 0x4E, 0x44, 0x66, 0x3A, 0x61, 0xFF, 0xDB, 0xF9, 0xB8, 0xA6, 0xD1, 0xFB, 0xD6, 0xC0, 0x2B, 0x6A, 0xA7, 0xC0, 0xB7, 0xAE, 0xBA, 0xE8, 0xCE, 0xBC, 0x91, 0x2C, 0xC9, 0xA1, 0x52, 0xD4, 0x1A, 0x5A, 0xFE, 0x60, 0x5D, 0xF9, 0xE2, 0xE4, 0xBD, 0x57, 0xB0, 0xAB, 0xA7, 0x09, 0x72, 0x70, 0xED, 0x19, 0x5F, 0xD3, 0x04, 0xC7, 0xE0, 0xAD, 0xFA, 0x87, 0x17, 0x2B, 0x14, 0x5A, 0x0F, 0x16, 0xCA, 0x7C };
+
+            PacketReader PDP = new PacketReader(D);
+            byte[] Leng = PDP.PReadBytes(2);
+            byte[] SQ = PDP.PReadBytes(2);
+            byte[] CD = PDP.PReadBytes(2);
+            byte[] LE = PDP.PReadBytes(16);
+            byte[] ESalt = PDP.PReadBytes(16);
+            byte[] PlayLoad = PDP.PReadBytes(32);
+
+
+            byte[] LD = Crypto.DecryptStaticBuffer(LE);
+            byte[] DSalt = Crypto.DecryptStaticBuffer(ESalt);
+            uint S = BitConverter.ToUInt32(DSalt,0);
+            String Login = Encoding.ASCII.GetString(LD).TrimEnd('\0');
+
+            Crypto C = new Crypto(Login, "1234", S);
+
+            byte[] xD = new byte[16];
+
+            Array.Copy(PlayLoad, 0, xD, 0, 16);
+
+            byte[] DPlayLoad = C.DecryptDynamic(xD);
+
+            String X = Encoding.ASCII.GetString(DPlayLoad);
+
+          */
+
+         
+
             BTNAPPLY_Click(null, null);
 
             if (allDevices.Count == 0)
@@ -236,14 +270,14 @@ namespace SnifferGunbound
                                     DataScreen += "[SERVER]>Send Salt:" + Salt + Environment.NewLine;
                                 }
 
-                                /*
+                                
                                 Temp = "";
                                 for (int i = 0; i < PacketB.Length; i++)
                                 {
                                     Temp += "0x" + PacketB[i].ToString("X2") + ",";
                                 }
                                 DataScreen += Temp + Environment.NewLine;
-                                */
+                                
 
                                 DataScreen += Utils.HexDump(PacketB, 16) + Environment.NewLine;
 
@@ -267,6 +301,9 @@ namespace SnifferGunbound
 
                                 if (CD == 4112)
                                 {
+                                        
+                                 
+
                                     Crypto.Initialize();
                                     byte[] CryptedDataUser = Crypto.DecryptStaticBuffer(PR.PReadBytes(16));
                                     String Login = Encoding.ASCII.GetString(CryptedDataUser).TrimEnd('\0');
@@ -297,6 +334,63 @@ namespace SnifferGunbound
                                         uint Version = LoginData.PReadUInt32();
                                         DataScreen += "[Client]>Send Password: " + Password + Environment.NewLine;
                                         DataScreen += "[Client]>Send Version: " + Version + Environment.NewLine;
+                                    }
+                                    else
+                                    {
+                                        PasswordError(true);
+                                        DataScreen += "[Client]>Send Password: (Cant Decrypt) Invalid Password ?" + Environment.NewLine;
+                                    }
+
+                                }
+
+                                if (CD == 4113)
+                                {
+                                      Temp = "";
+                                   for (int i = 0; i < PacketB.Length; i++)
+                                   {
+                                       Temp += "0x" + PacketB[i].ToString("X2") + ",";
+                                   }
+                                   DataScreen += Temp + Environment.NewLine;
+                                   
+
+                                    Crypto.Initialize();
+                                    byte[] CryptedDataUser = Crypto.DecryptStaticBuffer(PR.PReadBytes(16));
+                                    String Login = Encoding.ASCII.GetString(CryptedDataUser).TrimEnd('\0');
+                                    DataScreen += "[Client]>Send Login: " + Login + Environment.NewLine;
+                                    byte[] AuthDWORD = Crypto.DecryptStaticBuffer(PR.PReadBytes(16));
+
+                                    DataScreen += "Salt" + Utils.HexDump(AuthDWORD, 16) + Environment.NewLine;
+
+                                    if (CryptoPort.ContainsKey(Ip.Tcp.DestinationPort))
+                                    {
+                                        CryptoPort[Ip.Tcp.DestinationPort] = new Crypto(Login, GetPassword, BitConverter.ToUInt32(AuthDWORD, 0));
+                                    }
+                                    else
+                                    {
+                                        CryptoPort.Add(Ip.Tcp.DestinationPort, new Crypto(Login, GetPassword, BitConverter.ToUInt32(AuthDWORD, 0)));
+                                    }
+
+
+                                    byte[] DynData = PR.PReadBytes(32);
+
+                                   
+
+
+                                    byte[] RealData = CryptoPort[Ip.Tcp.DestinationPort].DecryptDynamic(DynData);
+
+                                    DataScreen += "Data" + Utils.HexDump(RealData, 16) + Environment.NewLine;
+
+
+                                    bool PDecryptStatus = CryptoPort[Ip.Tcp.DestinationPort].PacketDecrypt(DynData, ref RealData, 4113);
+
+                                    if (PDecryptStatus)
+                                    {
+                                        
+                                        PasswordError(false);
+                                        PacketReader LoginData = new PacketReader(RealData);
+                                        String Password = Encoding.ASCII.GetString(LoginData.PReadBytes(16)).TrimEnd('\0');
+                                        DataScreen += "[Client]>Send Password: " + Password + Environment.NewLine;
+
                                     }
                                     else
                                     {

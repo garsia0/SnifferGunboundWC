@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
+
 namespace SnifferGunbound
 {
     public class Crypto
@@ -49,7 +51,7 @@ namespace SnifferGunbound
             cryptoStream.Close();
             return memoryStream.ToArray();
         }
-        private byte[] DecryptDynamic(byte[] cipherData)
+        public byte[] DecryptDynamic(byte[] cipherData)
         {
             MemoryStream memoryStream = new MemoryStream();
             CryptoStream cryptoStream = new CryptoStream(memoryStream, this.m_DynamicRijndael.CreateDecryptor(), CryptoStreamMode.Write);
@@ -111,6 +113,7 @@ namespace SnifferGunbound
                     {
                         //packetReader.Seek(16 * i, SeekOrigin.Begin);
                         uint num4 = BitConverter.ToUInt32(array, 16 * i);//packetReader.ReadUInt32();//se leen los 4 primeros ya desencryptados pero en la inicialisacion
+                        
                         if (num4 - (uint)packetid != num3)
                         {
                             /*
@@ -119,7 +122,7 @@ namespace SnifferGunbound
 								num4,
 								num3 + (uint)packetid
 							});
-                             * */
+                            */
                             result = false;
                             return result;
                         }
@@ -140,13 +143,8 @@ namespace SnifferGunbound
             {
                 SHA1CryptoServiceProvider sHA1CryptoServiceProvider = new SHA1CryptoServiceProvider();
                 SpecialSHA specialSHA = new SpecialSHA();
-                String text = String.Empty;
-                byte[] bytes = GetBytes(dword);
-                for (int i = bytes.Length - 1; i >= 0; i--)
-                {
-                    text += specialSHA.Chr(bytes[i]).ToString();
-                }
-                string inMsg = login + pass + text;
+                byte[] Auth = BitConverter.GetBytes(dword);
+                string inMsg = login + pass + Encoding.ASCII.GetString(Auth);
                 byte[] key = specialSHA.SHA1(inMsg);
                 this.m_DynamicRijndael = Rijndael.Create();
                 this.m_DynamicRijndael.Key = key;
