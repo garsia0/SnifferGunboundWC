@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SnifferGunbound
@@ -79,6 +80,28 @@ namespace SnifferGunbound
             return data;
         }
 
+        public static void Log(String Data)
+        {
+            try
+            {
+                StreamWriter log;
+                if (!File.Exists("Log.txt"))
+                {
+                    log = new StreamWriter("Log.txt");
+                }
+                else
+                {
+                    log = File.AppendText("Log.txt");
+                }
+                log.WriteLine(Data);
+                log.Close();
+            }
+            catch
+            {
+                
+            }
+        }
 
-    }
+
+        }
 }

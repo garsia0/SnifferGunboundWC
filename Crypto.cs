@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -64,7 +66,7 @@ namespace SnifferGunbound
             byte[] result;
             if (decryptme.Length != 16)
             {
-                //Program.LogFormV.UpdateLog("DecyryptStatic() is 128-bit only.");
+                Debug.WriteLine("DecyryptStatic() is 128-bit only.");
                 result = null;
             }
             else
@@ -75,6 +77,7 @@ namespace SnifferGunbound
         }
         public void Dispose()
         {
+            this.m_DynamicRijndael.Clear();
             this.m_DynamicRijndael = null;
         }
         public bool PacketDecrypt(byte[] input, ref byte[] output, ushort packetid)
@@ -82,14 +85,14 @@ namespace SnifferGunbound
             bool result;
             if (input.Length == 0)
             {
-                //Program.LogFormV.UpdateLog("Empty buffer passed for decryption");
+                Debug.WriteLine("Empty buffer passed for decryption");
                 result = false;
             }
             else
             {
                 if (input.Length % 16 != 0)
                 {
-                    //Program.LogFormV.UpdateLog("Decrypt failed. Input byte count is not a multiple of 16.");
+                    Debug.WriteLine("Decrypt failed. Input byte count is not a multiple of 16.");
                     result = false;
                 }
                 else
@@ -98,31 +101,15 @@ namespace SnifferGunbound
                     int num2 = num * 12;
                     byte[] array = new byte[input.Length];
                     byte[] array2 = new byte[num2];
-                    array = this.DecryptDynamic(input);//se mandan defrente para desencryptar
+                    array = this.DecryptDynamic(input);
 
-                    /*
-                    Utils.Log("Packet DynDecrypted: {0}", new object[]
-							{
-								Server.Utils.BytesToString(array,0,array.Length)
-							});
-                     * 
-                     * */
-                    //PacketReader packetReader = new PacketReader(array, array.Length);//se pasan al packet reader
                     uint num3 = 2251382910u;
                     for (int i = 0; i < num; i++)
                     {
-                        //packetReader.Seek(16 * i, SeekOrigin.Begin);
-                        uint num4 = BitConverter.ToUInt32(array, 16 * i);//packetReader.ReadUInt32();//se leen los 4 primeros ya desencryptados pero en la inicialisacion
-                        
+                        uint num4 = BitConverter.ToUInt32(array, 16 * i);
                         if (num4 - (uint)packetid != num3)
                         {
-                            /*
-                            Utils.Log("Bad Packet Signature. G: {0,8:X8} E: {1,8:X8}", new object[]
-							{
-								num4,
-								num3 + (uint)packetid
-							});
-                            */
+                            Debug.WriteLine($"Bad Packet Signature. G: {num4.ToString("x8")} E: {(num3 + (uint)packetid).ToString("x8")}");
                             result = false;
                             return result;
                         }
@@ -143,11 +130,15 @@ namespace SnifferGunbound
             {
                 SHA1CryptoServiceProvider sHA1CryptoServiceProvider = new SHA1CryptoServiceProvider();
                 SpecialSHA specialSHA = new SpecialSHA();
-                byte[] Auth = BitConverter.GetBytes(dword);
-                string inMsg = login + pass + Encoding.ASCII.GetString(Auth);
-                byte[] key = specialSHA.SHA1(inMsg);
+                String text = String.Empty;
+                byte[] AuthDword = GetBytes(dword);
+                Array.Reverse(AuthDword);
+                List<byte> Temp = new List<byte>();
+                Temp.AddRange(Encoding.ASCII.GetBytes(login + pass));
+                Temp.AddRange(AuthDword);
+                byte[] Key = specialSHA.SHA1(Temp.ToArray());
                 this.m_DynamicRijndael = Rijndael.Create();
-                this.m_DynamicRijndael.Key = key;
+                this.m_DynamicRijndael.Key = Key;
                 this.m_DynamicRijndael.Mode = CipherMode.ECB;
                 this.m_DynamicRijndael.Padding = PaddingMode.Zeros;
             }

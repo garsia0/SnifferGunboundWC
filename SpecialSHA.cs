@@ -67,14 +67,15 @@ namespace SnifferGunbound
             this.m_ByteArray[(int)checked((IntPtr)this.m_HighByte)] = data;
             this.m_HighByte += 1L;
         }
-        private void Append(string data)
+
+        private void Append(byte[] bytes)
         {
-            long num = (long)data.Length;
+            long num = (long)bytes.Length;
             if (num + this.m_HighByte > this.m_HighBound)
             {
                 this.m_HighBound += 1024L;
             }
-            byte[] bytes = System.Text.Encoding.ASCII.GetBytes(data);
+
             int num2 = 0;
             while ((long)num2 < num)
             {
@@ -83,34 +84,8 @@ namespace SnifferGunbound
             }
             this.m_HighByte += num;
         }
-        public char Chr(byte i)
-        {
-            char[] chars = System.Text.Encoding.ASCII.GetChars(new byte[]
-			{
-				i
-			}, 0, 1);
-            return chars[0];
-        }
-        public string String(long times, string repeat)
-        {
-            string text = "";
-            for (long num = 0L; num < times; num += 1L)
-            {
-                text += repeat;
-            }
-            return text;
-        }
-        private string Space(long count)
-        {
-            string text = "";
-            int num = 0;
-            while ((long)num < count)
-            {
-                text += " ";
-                num++;
-            }
-            return text;
-        }
+
+
         private byte[] GData()
         {
             byte[] array = new byte[this.m_HighByte];
@@ -143,7 +118,7 @@ namespace SnifferGunbound
             result.B0 = (byte)(num % 256);
             return result;
         }
-        public byte[] SHA1(string inMsg)
+        public byte[] SHA1(byte[] inMsg)
         {
             SpecialSHA.DWORD[] array = new SpecialSHA.DWORD[4];
             SpecialSHA.DWORD[] array2 = new SpecialSHA.DWORD[5];
@@ -216,24 +191,24 @@ namespace SnifferGunbound
                 num5++;
             }
             return new byte[]
-			{
-				array2[0].B3,
-				array2[0].B2,
-				array2[0].B1,
-				array2[0].B0,
-				array2[1].B3,
-				array2[1].B2,
-				array2[1].B1,
-				array2[1].B0,
-				array2[2].B3,
-				array2[2].B2,
-				array2[2].B1,
-				array2[2].B0,
-				array2[3].B3,
-				array2[3].B2,
-				array2[3].B1,
-				array2[3].B0
-			};
+            {
+                array2[0].B3,
+                array2[0].B2,
+                array2[0].B1,
+                array2[0].B0,
+                array2[1].B3,
+                array2[1].B2,
+                array2[1].B1,
+                array2[1].B0,
+                array2[2].B3,
+                array2[2].B2,
+                array2[2].B1,
+                array2[2].B0,
+                array2[3].B3,
+                array2[3].B2,
+                array2[3].B1,
+                array2[3].B0
+            };
         }
         private uint DWORDToUINT(SpecialSHA.DWORD w)
         {

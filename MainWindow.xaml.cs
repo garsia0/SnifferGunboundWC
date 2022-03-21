@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -122,37 +124,6 @@ namespace SnifferGunbound
 
             Crypto.Initialize();
 
-            /*
-            byte[] D = new byte[] { 0x46, 0x00, 0xDF, 0xCD, 0x11, 0x10, 0x4E, 0x44, 0x66, 0x3A, 0x61, 0xFF, 0xDB, 0xF9, 0xB8, 0xA6, 0xD1, 0xFB, 0xD6, 0xC0, 0x2B, 0x6A, 0xA7, 0xC0, 0xB7, 0xAE, 0xBA, 0xE8, 0xCE, 0xBC, 0x91, 0x2C, 0xC9, 0xA1, 0x52, 0xD4, 0x1A, 0x5A, 0xFE, 0x60, 0x5D, 0xF9, 0xE2, 0xE4, 0xBD, 0x57, 0xB0, 0xAB, 0xA7, 0x09, 0x72, 0x70, 0xED, 0x19, 0x5F, 0xD3, 0x04, 0xC7, 0xE0, 0xAD, 0xFA, 0x87, 0x17, 0x2B, 0x14, 0x5A, 0x0F, 0x16, 0xCA, 0x7C };
-
-            PacketReader PDP = new PacketReader(D);
-            byte[] Leng = PDP.PReadBytes(2);
-            byte[] SQ = PDP.PReadBytes(2);
-            byte[] CD = PDP.PReadBytes(2);
-            byte[] LE = PDP.PReadBytes(16);
-            byte[] ESalt = PDP.PReadBytes(16);
-            byte[] PlayLoad = PDP.PReadBytes(32);
-
-
-            byte[] LD = Crypto.DecryptStaticBuffer(LE);
-            byte[] DSalt = Crypto.DecryptStaticBuffer(ESalt);
-            uint S = BitConverter.ToUInt32(DSalt,0);
-            String Login = Encoding.ASCII.GetString(LD).TrimEnd('\0');
-
-            Crypto C = new Crypto(Login, "1234", S);
-
-            byte[] xD = new byte[16];
-
-            Array.Copy(PlayLoad, 0, xD, 0, 16);
-
-            byte[] DPlayLoad = C.DecryptDynamic(xD);
-
-            String X = Encoding.ASCII.GetString(DPlayLoad);
-
-          */
-
-         
-
             BTNAPPLY_Click(null, null);
 
             if (allDevices.Count == 0)
@@ -237,7 +208,6 @@ namespace SnifferGunbound
             IpV4Datagram Ip = packet.Ethernet.IpV4;
             TcpDatagram Tcp = Ip.Tcp;
             UdpDatagram Udp = Ip.Udp;
-            UInt16 OpCode;
 
             if (Tcp != null)
             {
