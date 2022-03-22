@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnifferGunbound"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000" Loaded="Window_Loaded" MinHeight="350" MinWidth="790" WindowStartupLocation="CenterScreen" >
+        Title="MainWindow" Height="600" Width="1000" Loaded="Window_Loaded" MinHeight="350" MinWidth="790" WindowStartupLocation="CenterScreen" Closed="Window_Closed" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -23,7 +23,7 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBox Name="TXTTCPLOG" HorizontalAlignment="Stretch"   TextWrapping="Wrap"  VerticalAlignment="Stretch" Margin="0,0,0,5"  />
+                    <TextBox VerticalScrollBarVisibility="Visible" Name="TXTTCPLOG" HorizontalAlignment="Stretch"   TextWrapping="Wrap"  VerticalAlignment="Stretch" Margin="0,0,0,5"  />
                     <Button Name="TXTTCPClear" Content="Clear" HorizontalAlignment="Left"  VerticalAlignment="Top" Width="75" Grid.Row="1" Click="TXTTCPClear_Click"/>
 
                 </Grid>
@@ -34,7 +34,7 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBox Name="TXTUDPLOG" HorizontalAlignment="Stretch"   TextWrapping="Wrap"  VerticalAlignment="Stretch" Margin="0,0,0,5"  />
+                    <TextBox  VerticalScrollBarVisibility="Visible" Name="TXTUDPLOG" HorizontalAlignment="Stretch"   TextWrapping="Wrap"  VerticalAlignment="Stretch" Margin="0,0,0,5"  />
                     <Button Name="TXTUDPClear" Content="Clear" HorizontalAlignment="Left" Width="75" Grid.Row="1" Click="TXTUDPClear_Click"/>
 
                 </Grid>
@@ -47,7 +47,7 @@
             <ComboBox Name="ComboAdapter" HorizontalAlignment="Left"  VerticalAlignment="Top" Width="363" Height="23" Margin="0,0,0,0"/>
             <Button Name="BTNSTART" Content="Start" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Height="23" Margin="368,0,0,0" Click="BTNSTART_Click" />
             <Label Content="Port:" HorizontalAlignment="Left" Margin="448,-1,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Height="23" Width="39"/>
-            <TextBox Name="TXTPORT" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="492,0,0,0" TextWrapping="Wrap" Text="8501,8502,8444" VerticalAlignment="Top" Width="205"/>
+            <TextBox Name="TXTPORT" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" HorizontalAlignment="Left" Height="23" Margin="492,0,0,0" TextWrapping="Wrap" Text="8501,8502,8444,8372" VerticalAlignment="Top" Width="205"/>
             <Button Name="BTNAPPLY" Content="Apply" HorizontalAlignment="Left" Margin="702,0,0,0" VerticalAlignment="Top" Width="70" Click="BTNAPPLY_Click" Height="23"/>
             <TextBox Name="TXTGBP" HorizontalAlignment="Left"  VerticalContentAlignment="Center" Height="23" Margin="852,-1,0,0" TextWrapping="Wrap" Text="GBPassword" VerticalAlignment="Top" Width="120"/>
             <Label Content="Password:" HorizontalAlignment="Left" Margin="772,-1,0,0" VerticalAlignment="Top" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" Height="23" Width="75"/>
