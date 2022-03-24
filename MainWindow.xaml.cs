@@ -167,6 +167,7 @@ namespace SnifferGunbound
                 if (Current != null)
                 {
                     Current.StopCapture();
+                    Current.Close();
                     Current = null;
                 }
             }
@@ -282,14 +283,39 @@ namespace SnifferGunbound
                                     DataScreen += "[SERVER]>Send AuthDWORD:" + AuthDWORD + Environment.NewLine;
                                 }
 
-                                /*
+                                if (CD == 8223)
+                                {
+                                    DataScreen += "[Server]>Send Channel Msg:" + Environment.NewLine;
+                                    if (CryptoPort.ContainsKey(SourcePort))
+                                    {
+                                        byte[] Playload = PR.PReadBytes(PR.Length - 6);
+                                        byte[] RealData = new byte[PR.Length - 6];
+                                        if (CryptoPort[SourcePort].PacketDecrypt(Playload, ref RealData, 8223))
+                                        {
+                                            DataScreen += "[Server]> Decripted" + Environment.NewLine + Utils.HexDump(RealData);
+                                            PacketReader MsgData = new PacketReader(RealData);
+                                            /*byte L = MsgData.PReadByte();
+                                            String Texto = MsgData.PReadStringLeng(L);
+
+                                            DataScreen += "[Client]>Send Channel Msg Content:" + Texto + Environment.NewLine;*/
+                                        }
+                                        else
+                                        {
+                                            DataScreen += "[Server]> Fail Decript [8223]";
+                                        }
+
+                                    }
+
+                                }
+
+
                                 String Temp = "";
                                 for (int i = 0; i < Raw.Length; i++)
                                 {
                                     Temp += "0x" + Raw[i].ToString("X2") + ",";
                                 }
                                 DataScreen += Temp + Environment.NewLine;
-                                */
+                                
 
                                 DataScreen += Utils.HexDump(Raw, 16) + Environment.NewLine;
 
